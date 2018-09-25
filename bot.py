@@ -1,6 +1,7 @@
 import discord
 import logging
 import youtube_dl
+import asyncio
 from youtube_dl import YoutubeDL
 from discord.ext import commands
 from docs.config import token
@@ -22,6 +23,10 @@ def check_queue(id):
         player = queues[id].pop(0)
         players[id] = player
         player.start()
+    else:
+        server = client.message.server
+        voice_client = client.voice_client_in(server)
+        voice_client.disconnect()
 
 @client.event
 async def on_ready():
@@ -53,7 +58,7 @@ async def play(ctx, *, url):
     opts = {"default_search": "auto", "format": "bestaudio/best", "skip_download": True}
     player = await voice_client.create_ytdl_player(url, ytdl_options=opts, after=lambda: check_queue(server.id))
     players[server.id] = player
-    player.volume = 0.15
+    player.volume = 0.20
     player.start()
     await client.say("**Playing video..**")
 
@@ -63,7 +68,7 @@ async def queue(ctx, *, url):
     voice_client = client.voice_client_in(server)
     opts = {"default_search": "auto", "format": "bestaudio/best", "skip_download": True}
     player = await voice_client.create_ytdl_player(url, ytdl_options=opts, after=lambda: check_queue(server.id))
-    player.volume = 0.15
+    player.volume = 0.20
 
     if server.id in queues:
         queues[server.id].append(player)
